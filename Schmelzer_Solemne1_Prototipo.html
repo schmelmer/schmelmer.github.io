@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vuelve a Casa — Búsqueda y reencuentro de mascotas perdidas</title>
+<meta name="description" content="Plataforma que centraliza reportes de mascotas perdidas y encontradas, y los cruza para acelerar el reencuentro. Prototipo — Taller de Innovación y Emprendimiento, USS.">
+<style>
+  :root{
+    --teal:#0e7c7b; --teal-d:#0a5958; --teal-l:#e6f4f4;
+    --amber:#f4a825; --amber-d:#c9820a; --amber-l:#fdf3dd;
+    --ink:#20303c; --ink-soft:#54646f; --line:#dde5ea;
+    --bg:#fbfcfd; --card:#ffffff; --danger:#c0392b; --ok:#1e8e5a;
+    --radius:14px; --shadow:0 6px 24px rgba(32,48,60,.08);
+    font-size:16px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:"Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif; color:var(--ink); background:var(--bg); line-height:1.6}
+  img{max-width:100%}
+  a{color:var(--teal)}
+  .wrap{max-width:1080px; margin:0 auto; padding:0 20px}
+  section{padding:64px 0; scroll-margin-top:70px}
+  h1,h2,h3{line-height:1.2}
+  h2{font-size:1.9rem; margin-bottom:8px}
+  .kicker{display:inline-block; font-size:.78rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--teal); background:var(--teal-l); padding:4px 12px; border-radius:99px; margin-bottom:14px}
+  .lead{color:var(--ink-soft); font-size:1.06rem; max-width:70ch}
+  .grid{display:grid; gap:20px}
+  @media(min-width:760px){ .g2{grid-template-columns:1fr 1fr} .g3{grid-template-columns:repeat(3,1fr)} }
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:22px; box-shadow:var(--shadow)}
+  .card h3{margin-bottom:8px; font-size:1.08rem}
+  .card p{color:var(--ink-soft); font-size:.95rem}
+  .big{font-size:2rem}
+
+  /* NAV */
+  nav{position:sticky; top:0; z-index:50; background:rgba(255,255,255,.92); backdrop-filter:blur(8px); border-bottom:1px solid var(--line)}
+  .navin{display:flex; align-items:center; gap:18px; height:60px}
+  .logo{display:flex; align-items:center; gap:9px; font-weight:800; font-size:1.05rem; color:var(--ink); text-decoration:none}
+  .logo .paw{width:34px;height:34px; display:grid; place-items:center; background:var(--teal); color:#fff; border-radius:10px; font-size:18px}
+  .navlinks{display:none; gap:16px; margin-left:auto; font-size:.92rem}
+  .navlinks a{color:var(--ink-soft); text-decoration:none; font-weight:600}
+  .navlinks a:hover{color:var(--teal)}
+  @media(min-width:860px){ .navlinks{display:flex} }
+  .btn{display:inline-block; border:none; cursor:pointer; text-decoration:none; text-align:center; font-weight:700; border-radius:10px; padding:12px 20px; font-size:.97rem; transition:transform .08s ease, box-shadow .2s}
+  .btn:active{transform:scale(.98)}
+  .btn-p{background:var(--teal); color:#fff}
+  .btn-p:hover{background:var(--teal-d)}
+  .btn-a{background:var(--amber); color:#3c2c05}
+  .btn-a:hover{background:var(--amber-d); color:#fff}
+  .btn-o{background:#fff; color:var(--teal); border:2px solid var(--teal)}
+  .btn-sm{padding:8px 14px; font-size:.85rem; border-radius:8px}
+  .navcta{margin-left:auto} @media(min-width:860px){.navcta{margin-left:0}}
+
+  /* HERO */
+  header.hero{background:linear-gradient(160deg, #0a5958 0%, #0e7c7b 55%, #14938f 100%); color:#fff; padding:72px 0 56px}
+  .hero .wrap{display:grid; gap:36px} @media(min-width:900px){.hero .wrap{grid-template-columns:1.15fr .85fr; align-items:center}}
+  .hero h1{font-size:clamp(1.9rem, 4vw, 2.9rem); margin:14px 0 14px}
+  .hero p.sub{color:#d7ecec; font-size:1.12rem; max-width:56ch}
+  .hero .kicker{background:rgba(255,255,255,.14); color:#ffe9b8}
+  .heroctas{display:flex; flex-wrap:wrap; gap:12px; margin-top:26px}
+  .stats{display:flex; gap:28px; margin-top:34px; flex-wrap:wrap}
+  .stat b{display:block; font-size:1.5rem}
+  .stat span{font-size:.8rem; color:#bfe0df}
+  .heroart{background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.18); border-radius:20px; padding:18px}
+
+  /* SECTION tinting */
+  .alt{background:#f2f7f8}
+  .prob-cards .card{border-top:4px solid var(--danger)}
+  .sol-steps .card{border-top:4px solid var(--teal); position:relative}
+  .stepnum{position:absolute; top:-16px; left:18px; width:32px; height:32px; border-radius:50%; background:var(--teal); color:#fff; display:grid; place-items:center; font-weight:800}
+
+  /* DEMO */
+  #demo{background:linear-gradient(180deg,#f2f7f8 0%, #e9f2f3 100%)}
+  .demo-shell{background:#fff; border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow); overflow:hidden}
+  .demo-note{display:flex; gap:10px; align-items:flex-start; background:var(--amber-l); border-bottom:1px solid #f0dcae; padding:12px 18px; font-size:.86rem; color:#6b5313}
+  .tabs{display:flex; border-bottom:1px solid var(--line); flex-wrap:wrap}
+  .tab{flex:1; min-width:150px; padding:14px 10px; background:#f6f9fa; border:none; border-right:1px solid var(--line); font-weight:700; font-size:.95rem; color:var(--ink-soft); cursor:pointer}
+  .tab:last-child{border-right:none}
+  .tab[aria-selected="true"]{background:#fff; color:var(--teal); box-shadow:inset 0 -3px 0 var(--teal)}
+  .panel{padding:26px 22px}
+  form .row{display:grid; gap:14px; margin-bottom:14px} @media(min-width:700px){ form .row.r2{grid-template-columns:1fr 1fr} form .row.r3{grid-template-columns:1fr 1fr 1fr} }
+  label{font-size:.86rem; font-weight:700; display:block; margin-bottom:5px}
+  label .req{color:var(--danger)}
+  input,select,textarea{width:100%; padding:11px 12px; border:1.5px solid var(--line); border-radius:9px; font:inherit; background:#fff}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--teal); outline-offset:1px; border-color:var(--teal)}
+  .hint{font-size:.8rem; color:var(--ink-soft); margin-top:4px}
+  .fieldbox{border:1.5px dashed var(--line); border-radius:10px; padding:14px; background:#fafcfc}
+  .switchrow{display:flex; align-items:center; gap:10px}
+  .switchrow input{width:auto}
+  .fotoprev{display:flex; align-items:center; gap:14px; margin-top:10px}
+  .fotoprev .ph{width:76px; height:76px; border-radius:12px; background:var(--teal-l); display:grid; place-items:center; font-size:34px; overflow:hidden; border:1px solid var(--line)}
+  .fotoprev img{width:100%; height:100%; object-fit:cover}
+  .formfoot{display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-top:18px}
+  .demo-tip{background:var(--teal-l); border:1px solid #bfe0df; color:var(--teal-d); border-radius:10px; padding:10px 14px; font-size:.87rem; margin-bottom:18px}
+
+  /* MURO */
+  .filters{display:grid; gap:10px; margin-bottom:18px} @media(min-width:760px){.filters{grid-template-columns:1.2fr 1fr 1fr 1fr}}
+  .muro{display:grid; gap:14px} @media(min-width:700px){.muro{grid-template-columns:1fr 1fr}}
+  .rep{display:flex; gap:14px; background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px}
+  .rep .ph{flex:0 0 84px; width:84px; height:84px; border-radius:12px; background:var(--teal-l); display:grid; place-items:center; font-size:38px; overflow:hidden}
+  .rep .ph img{width:100%; height:100%; object-fit:cover}
+  .rep h4{font-size:1rem; display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+  .rep p{font-size:.85rem; color:var(--ink-soft)}
+  .badge{font-size:.68rem; font-weight:800; letter-spacing:.06em; padding:3px 9px; border-radius:99px}
+  .b-lost{background:#fdeaea; color:var(--danger)}
+  .b-found{background:#e6f6ee; color:var(--ok)}
+  .b-rew{background:var(--amber-l); color:var(--amber-d)}
+  .b-see{background:#fff3e0; color:#b26a00}
+  .b-done{background:#e8ecef; color:#54646f}
+  .b-urg{background:#fdeaea; color:var(--danger)}
+  .rep.done{opacity:.75}
+  .rep.urg{border-color:#e8b8b1; box-shadow:0 0 0 2px #fdeaea inset}
+  .rep .actions{margin-top:8px; display:flex; gap:8px; flex-wrap:wrap}
+  .empty{padding:30px; text-align:center; color:var(--ink-soft); border:1.5px dashed var(--line); border-radius:12px}
+
+  /* PERSONAS / VALOR / IMPACTO */
+  .persona{display:flex; gap:16px}
+  .persona .avatar{flex:0 0 60px; width:60px; height:60px; border-radius:50%; background:var(--teal-l); display:grid; place-items:center; font-size:28px}
+  .quote{font-style:italic; color:var(--ink-soft); border-left:3px solid var(--amber); padding-left:12px; margin-top:10px; font-size:.92rem}
+  table.cmp{width:100%; border-collapse:collapse; background:#fff; border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow); font-size:.92rem}
+  .cmp th,.cmp td{padding:12px 14px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top}
+  .cmp thead th{background:var(--teal); color:#fff; font-size:.85rem}
+  .cmp td:first-child{font-weight:700}
+  .yes{color:var(--ok); font-weight:700} .no{color:var(--danger); font-weight:700} .mid{color:var(--amber-d); font-weight:700}
+  .impact .card{border-top:4px solid var(--amber)}
+
+  /* MODAL */
+  dialog{border:none; border-radius:16px; padding:0; max-width:640px; width:calc(100% - 40px); box-shadow:0 20px 60px rgba(0,0,0,.25)}
+  dialog::backdrop{background:rgba(15,35,40,.55)}
+  .mhead{background:var(--teal); color:#fff; padding:16px 22px; display:flex; justify-content:space-between; align-items:center}
+  .mhead.match{background:var(--ok)}
+  .mhead h3{font-size:1.05rem}
+  .mbody{padding:22px}
+  .mclose{background:transparent; border:none; color:#fff; font-size:1.3rem; cursor:pointer}
+  .matchcard{display:flex; gap:12px; border:1px solid var(--line); border-radius:12px; padding:12px; margin-top:12px; align-items:center}
+  .matchcard .ph{flex:0 0 64px; width:64px;height:64px;border-radius:10px;background:var(--teal-l);display:grid;place-items:center;font-size:30px;overflow:hidden}
+  .matchcard .ph img{width:100%;height:100%;object-fit:cover}
+  .scorepill{margin-left:auto; font-size:.7rem; font-weight:800; padding:4px 10px; border-radius:99px; white-space:nowrap}
+  .s-hi{background:#e6f6ee; color:var(--ok)} .s-md{background:var(--amber-l); color:var(--amber-d)}
+  .simnote{background:#eef4fb; border:1px solid #cfe0f5; color:#2c5282; padding:10px 14px; border-radius:10px; font-size:.85rem; margin-top:16px}
+
+  footer{background:var(--ink); color:#b8c4cc; padding:36px 0; font-size:.86rem}
+  footer .wrap{display:grid; gap:8px}
+  .toast{position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(20px); background:var(--ink); color:#fff; padding:12px 20px; border-radius:10px; opacity:0; pointer-events:none; transition:.25s; z-index:99; font-size:.92rem; max-width:92%}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap navin">
+    <a class="logo" href="#top"><span class="paw">🐾</span> Vuelve a Casa</a>
+    <div class="navlinks">
+      <a href="#problema">Problema</a>
+      <a href="#solucion">Solución</a>
+      <a href="#demo">Demo</a>
+      <a href="#usuarios">Usuarios</a>
+      <a href="#valor">Valor</a>
+      <a href="#impacto">Impacto</a>
+    </div>
+    <a class="btn btn-a btn-sm navcta" href="#demo">Probar la demo</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div>
+      <span class="kicker">Prototipo funcional · Taller de Innovación y Emprendimiento USS</span>
+      <h1>Cuando una mascota se pierde, cada hora cuenta.</h1>
+      <p class="sub"><strong>Vuelve a Casa</strong> centraliza los reportes de mascotas <em>perdidas</em> y <em>encontradas</em> en un solo lugar, y los cruza automáticamente para acelerar el reencuentro.</p>
+      <div class="heroctas">
+        <a href="#demo" class="btn btn-a" onclick="openTab('perdida')">🔍 Perdí mi mascota</a>
+        <a href="#demo" class="btn btn-o" style="background:rgba(255,255,255,.95)" onclick="openTab('hallazgo')">💚 Encontré una mascota</a>
+      </div>
+      <div class="stats" aria-label="Indicadores de la demostración">
+        <div class="stat"><b id="stat-reportes">0</b><span>reportes activos (demo)</span></div>
+        <div class="stat"><b id="stat-matches">0</b><span>coincidencias detectadas</span></div>
+        <div class="stat"><b id="stat-comunas">0</b><span>comunas con reportes</span></div>
+      </div>
+    </div>
+    <div class="heroart" aria-hidden="true">
+      <svg viewBox="0 0 420 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustración: mapa con reportes de mascotas">
+        <rect x="10" y="10" width="400" height="280" rx="18" fill="#ffffff" opacity="0.9"/>
+        <path d="M10 90 Q120 60 210 95 T410 80" stroke="#dde5ea" fill="none" stroke-width="3"/>
+        <path d="M10 180 Q140 150 230 185 T410 170" stroke="#dde5ea" fill="none" stroke-width="3"/>
+        <path d="M120 10 Q140 120 110 290" stroke="#dde5ea" fill="none" stroke-width="3"/>
+        <path d="M280 10 Q260 140 300 290" stroke="#dde5ea" fill="none" stroke-width="3"/>
+        <g font-size="30">
+          <text x="60" y="80">🐕</text><text x="300" y="70">🐈</text><text x="180" y="160">🐕</text><text x="90" y="240">🐈</text><text x="320" y="220">🐕</text>
+        </g>
+        <g>
+          <circle cx="215" cy="140" r="46" fill="#0e7c7b" opacity="0.12"/>
+          <circle cx="215" cy="140" r="30" fill="#0e7c7b" opacity="0.18"/>
+          <text x="196" y="152" font-size="30">📍</text>
+        </g>
+        <g font-size="13" font-family="sans-serif" fill="#54646f">
+          <rect x="150" y="196" width="150" height="26" rx="13" fill="#e6f6ee"/>
+          <text x="163" y="214" fill="#1e8e5a" font-weight="bold">✓ ¡Coincidencia!</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<!-- ============ PROBLEMA ============ -->
+<section id="problema">
+  <div class="wrap">
+    <span class="kicker">1 · El problema</span>
+    <h2>La búsqueda hoy es dispersa, lenta y se apaga en horas</h2>
+    <p class="lead">Cada día se pierden mascotas en nuestras comunas. La respuesta de las familias es improvisada porque no existe un canal único: la información queda regada en canales que no conversan entre sí.</p>
+    <div class="grid g3 prob-cards" style="margin-top:28px">
+      <div class="card">
+        <div class="big">📰</div>
+        <h3>Carteles en postes</h3>
+        <p>Alcance de una cuadra, se deterioran con la lluvia y nadie los ve de noche. Es la solución de 1990 para un problema de hoy.</p>
+      </div>
+      <div class="card">
+        <div class="big">📱</div>
+        <h3>Decenas de grupos separados</h3>
+        <p>Grupos de Facebook y WhatsApp por comuna o barrio: hay que conocerlos, pedir acceso y publicar en cada uno por separado.</p>
+      </div>
+      <div class="card">
+        <div class="big">⏳</div>
+        <h3>El algoritmo entierra la publicación</h3>
+        <p>En pocas horas el post deja de mostrarse. Justo cuando la búsqueda más importa, la visibilidad desaparece.</p>
+      </div>
+    </div>
+    <p class="lead" style="margin-top:26px"><strong>La evidencia está a la vista:</strong> la cantidad de grupos vecinales de "mascotas perdidas" y de carteles en la calle demuestra que la necesidad existe y que las personas ya improvisan soluciones — solo que en canales fragmentados donde perdido y encontrado rara vez se cruzan. En <strong>20 entrevistas de empatía</strong> realizadas para este proyecto, ningún dueño sabía de antemano dónde publicar: el canal se elige al azar o se hereda, y las primeras horas —las que más importan— se pierden aprendiendo las reglas.</p>
+  </div>
+</section>
+
+<!-- ============ SOLUCIÓN ============ -->
+<section id="solucion" class="alt">
+  <div class="wrap">
+    <span class="kicker">2 · La solución</span>
+    <h2>Un solo canal que cruza ambos lados de la búsqueda</h2>
+    <p class="lead">Vuelve a Casa recibe los dos tipos de reporte — "perdí mi mascota" y "encontré una mascota" — y los compara por zona, especie y características para detectar coincidencias al instante.</p>
+    <div class="grid g3 sol-steps" style="margin-top:34px">
+      <div class="card">
+        <div class="stepnum">1</div>
+        <h3 style="margin-top:8px">Reporta en 2 minutos</h3>
+        <p>Foto, comuna y características básicas. Sin crear cuenta, sin descargar aplicaciones: pensado para un momento de urgencia.</p>
+      </div>
+      <div class="card">
+        <div class="stepnum">2</div>
+        <h3 style="margin-top:8px">El sistema cruza reportes</h3>
+        <p>Cada nuevo reporte se compara automáticamente con los del lado contrario. Si hay coincidencia probable, ambas partes lo ven de inmediato.</p>
+      </div>
+      <div class="card">
+        <div class="stepnum">3</div>
+        <h3 style="margin-top:8px">Reencuentro</h3>
+        <p>Contacto directo y seguro entre quien busca y quien encontró. Recompensa opcional definida por el dueño, sin pagos dentro de la plataforma.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DEMO ============ -->
+<section id="demo">
+  <div class="wrap">
+    <span class="kicker">Demo interactiva</span>
+    <h2>Pruébalo tú mismo</h2>
+    <p class="lead" style="margin-bottom:22px">Esta demo es funcional: los reportes que ingreses se guardan, aparecen en el muro y se cruzan con los existentes.</p>
+    <div class="demo-shell">
+      <div class="demo-note">⚠️ <span><strong>Nota de prototipo:</strong> los datos se guardan solo en tu navegador (demo). El contacto entre usuarios, las notificaciones y el mapa real son <strong>simulados</strong> en esta etapa.</span></div>
+      <div class="tabs" role="tablist">
+        <button class="tab" id="tab-perdida" role="tab" aria-selected="true" aria-controls="panel-perdida" onclick="openTab('perdida')">🔍 Perdí mi mascota</button>
+        <button class="tab" id="tab-hallazgo" role="tab" aria-selected="false" aria-controls="panel-hallazgo" onclick="openTab('hallazgo')">💚 Encontré una mascota</button>
+        <button class="tab" id="tab-muro" role="tab" aria-selected="false" aria-controls="panel-muro" onclick="openTab('muro')">📋 Muro de reportes <span id="muro-count" style="font-weight:400"></span></button>
+      </div>
+
+      <!-- PANEL PERDIDA -->
+      <div class="panel" id="panel-perdida" role="tabpanel" aria-labelledby="tab-perdida">
+        <div class="demo-tip">💡 <strong>Para ver el cruce en acción:</strong> ya existe un reporte de hallazgo de un <em>gato negro en Santiago Centro</em>. Reporta la pérdida de un gato negro en esa comuna y observa qué pasa. · <a href="#" onclick="openGuide(event)" style="font-weight:700">📖 Guía de primeras horas</a></div>
+        <form id="form-perdida" autocomplete="off">
+          <div class="row r2">
+            <div><label>Nombre de la mascota <span class="req">*</span></label><input required name="nombre" placeholder="Ej: Rocky"></div>
+            <div><label>Especie <span class="req">*</span></label>
+              <select required name="especie"><option value="">Selecciona…</option><option>Perro</option><option>Gato</option><option>Otra</option></select></div>
+          </div>
+          <div class="row r3">
+            <div><label>Raza (o "mestizo")</label><input name="raza" placeholder="Ej: golden retriever"></div>
+            <div><label>Tamaño</label><select name="tamano"><option value="">Selecciona…</option><option>Pequeño</option><option>Mediano</option><option>Grande</option></select></div>
+            <div><label>Color(es) <span class="req">*</span></label><input required name="colores" placeholder="Ej: dorado, blanco"></div>
+          </div>
+          <div class="row r2">
+            <div><label>Comuna donde se perdió <span class="req">*</span></label><select required name="comuna" class="sel-comuna"></select></div>
+            <div><label>Fecha de pérdida <span class="req">*</span></label><input required type="date" name="fecha"></div>
+          </div>
+          <div class="row">
+            <div><label>Señas particulares / dónde se vio por última vez</label><textarea name="senas" rows="2" placeholder="Ej: collar rojo con placa, se asusta con los ruidos, se perdió cerca de la plaza…"></textarea></div>
+          </div>
+          <div class="row r2">
+            <div>
+              <label>Foto (opcional)</label>
+              <input type="file" accept="image/*" name="foto" onchange="previewFoto(this,'prev-perdida')">
+              <div class="fotoprev"><div class="ph" id="prev-perdida">🐾</div><span class="hint">La foto es el dato que más ayuda a identificar. Si no subes una, usaremos un ícono.</span></div>
+            </div>
+            <div class="fieldbox">
+              <div class="switchrow"><input type="checkbox" id="chk-rec" name="ofreceRecompensa" onchange="document.getElementById('box-rec').style.display=this.checked?'block':'none'"><label for="chk-rec" style="margin:0">Ofrecer recompensa (opcional)</label></div>
+              <div id="box-rec" style="display:none; margin-top:10px">
+                <label>Monto (CLP)</label><input type="number" min="0" step="1000" name="recompensa" placeholder="Ej: 50000">
+                <div class="switchrow" style="margin-top:8px"><input type="checkbox" id="chk-monto" name="mostrarMonto"><label for="chk-monto" style="margin:0; font-weight:400">Mostrar el monto públicamente (si no, se publica "recompensa ofrecida")</label></div>
+                <p class="hint">🛡️ Seguridad: acuerda el pago solo contra entrega. Nunca pagues por adelantado ni compartas datos bancarios. El dinero no pasa por la plataforma.</p>
+              </div>
+              <div class="switchrow" style="margin-top:12px"><input type="checkbox" id="chk-urg" name="urgencia"><label for="chk-urg" style="margin:0">⚕️ Urgencia médica (requiere medicación o tratamiento)</label></div>
+              <p class="hint">Los casos con urgencia médica se destacan y aparecen primero en el muro.</p>
+            </div>
+          </div>
+          <div class="formfoot">
+            <button class="btn btn-p" type="submit">Publicar reporte de pérdida</button>
+            <span class="hint">Al publicar, el sistema buscará coincidencias con mascotas encontradas.</span>
+          </div>
+        </form>
+      </div>
+
+      <!-- PANEL HALLAZGO -->
+      <div class="panel" id="panel-hallazgo" role="tabpanel" aria-labelledby="tab-hallazgo" hidden>
+        <div class="demo-tip">💡 <strong>Para ver el cruce en acción:</strong> ya existe un reporte de pérdida de un <em>perro dorado grande en Providencia</em> ("Rocky"). Reporta que encontraste un perro dorado en Providencia y observa qué pasa.</div>
+        <form id="form-hallazgo" autocomplete="off">
+          <div class="row r2">
+            <div><label>Especie <span class="req">*</span></label>
+              <select required name="especie"><option value="">Selecciona…</option><option>Perro</option><option>Gato</option><option>Otra</option></select></div>
+            <div><label>Comuna donde lo encontraste <span class="req">*</span></label><select required name="comuna" class="sel-comuna"></select></div>
+          </div>
+          <div class="row r3">
+            <div><label>Raza aproximada</label><input name="raza" placeholder="Ej: mestizo"></div>
+            <div><label>Tamaño</label><select name="tamano"><option value="">Selecciona…</option><option>Pequeño</option><option>Mediano</option><option>Grande</option></select></div>
+            <div><label>Color(es) <span class="req">*</span></label><input required name="colores" placeholder="Ej: negro"></div>
+          </div>
+          <div class="row r2">
+            <div><label>Fecha del hallazgo <span class="req">*</span></label><input required type="date" name="fecha"></div>
+            <div><label>¿Dónde está el animal ahora? <span class="req">*</span></label>
+              <select required name="estado"><option value="">Selecciona…</option><option>Lo tengo conmigo temporalmente</option><option>Sigue en el lugar, no pude retenerlo</option><option>Solo lo vi, no pude quedarme (avistamiento)</option><option>Lo llevé a una veterinaria/refugio</option></select>
+              <p class="hint">¿Solo lo viste? Basta especie, comuna y una referencia del lugar: ese dato también reencuentra.</p></div>
+          </div>
+          <div class="row">
+            <div><label>Señas / detalles del hallazgo</label><textarea name="senas" rows="2" placeholder="Ej: sin collar, amistoso, estaba en la plaza, iba hacia el norte…"></textarea></div>
+          </div>
+          <div class="row r2">
+            <div>
+              <label>Foto (opcional)</label>
+              <input type="file" accept="image/*" name="foto" onchange="previewFoto(this,'prev-hallazgo')">
+              <div class="fotoprev"><div class="ph" id="prev-hallazgo">🐾</div><span class="hint">Una foto multiplica las posibilidades de que el dueño lo reconozca.</span></div>
+            </div>
+            <div class="fieldbox">
+              <p class="hint" style="margin-bottom:6px"><strong>¿Por qué te pedimos tan poco?</strong></p>
+              <p class="hint">Sabemos que quien encuentra una mascota está ayudando de pasada. Este reporte toma menos de 1 minuto y puede significar todo para una familia.</p>
+            </div>
+          </div>
+          <div class="formfoot">
+            <button class="btn btn-p" type="submit">Publicar reporte de hallazgo</button>
+            <span class="hint">Al publicar, el sistema buscará coincidencias con mascotas perdidas.</span>
+          </div>
+        </form>
+      </div>
+
+      <!-- PANEL MURO -->
+      <div class="panel" id="panel-muro" role="tabpanel" aria-labelledby="tab-muro" hidden>
+        <div class="filters">
+          <input id="f-texto" placeholder="Buscar por nombre, raza, color…" oninput="renderMuro()">
+          <select id="f-tipo" onchange="renderMuro()"><option value="">Todos los reportes</option><option value="perdida">Solo perdidos</option><option value="hallazgo">Solo encontrados</option><option value="cerrado">Reencontrados 🎉</option></select>
+          <select id="f-especie" onchange="renderMuro()"><option value="">Toda especie</option><option>Perro</option><option>Gato</option><option>Otra</option></select>
+          <select id="f-comuna" class="sel-comuna-f" onchange="renderMuro()"><option value="">Toda comuna</option></select>
+        </div>
+        <div class="muro" id="muro"></div>
+        <p style="margin-top:18px; text-align:right"><button class="btn btn-o btn-sm" onclick="resetDemo()">↺ Restablecer datos de la demo</button></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ USUARIOS ============ -->
+<section id="usuarios" class="alt">
+  <div class="wrap">
+    <span class="kicker">3 · Los usuarios</span>
+    <h2>Una plataforma con dos caras: quien busca y quien encuentra</h2>
+    <p class="lead">El reencuentro solo ocurre si ambos lados reportan. Por eso el diseño atiende dos perfiles con necesidades muy distintas.</p>
+    <div class="grid g2" style="margin-top:28px">
+      <div class="card persona">
+        <div class="avatar">😟</div>
+        <div>
+          <h3>La familia que busca</h3>
+          <p>Dueños y dueñas para quienes la mascota es un miembro de la familia. Están en crisis: angustia, urgencia y disposición a hacer lo que sea — publicar en todos lados, empapelar el barrio, ofrecer recompensa.</p>
+          <p class="quote">«Literalmente elegí por lo que apareció primero… y mi publicación quedó enterrada en dos horas.» — Camila, dueña entrevistada</p>
+          <p style="margin-top:10px"><strong>Necesita:</strong> un solo lugar donde publicar, visibilidad sostenida y avisos cuando aparezca algo parecido.</p>
+        </div>
+      </div>
+      <div class="card persona">
+        <div class="avatar">🙋</div>
+        <div>
+          <h3>La persona que encuentra</h3>
+          <p>Un vecino que ve un animal perdido camino al trabajo. Quiere ayudar, pero no sabe dónde reportar, no puede quedarse con el animal y no pertenece a los grupos del barrio del dueño.</p>
+          <p class="quote">«Un minuto tenía. Lo que no tenía era a quién dárselo.» — Bárbara, testigo entrevistada</p>
+          <p style="margin-top:10px"><strong>Necesita:</strong> reportar en menos de 1 minuto, sin registrarse —incluso como simple avistamiento si no puede quedarse con el animal— y que el sistema haga el resto.</p>
+        </div>
+      </div>
+    </div>
+    <p class="lead" style="margin-top:24px">En Chile, la tenencia responsable es además un mandato legal (Ley 21.020): reunir a las mascotas con sus familias reduce el abandono y la población callejera — un problema de bienestar animal y también de salud pública.</p>
+  </div>
+</section>
+
+<!-- ============ VALOR ============ -->
+<section id="valor">
+  <div class="wrap">
+    <span class="kicker">4 · El valor</span>
+    <h2>Por qué esto y no otro cartel más</h2>
+    <p class="lead" style="margin-bottom:24px">Las alternativas actuales difunden; ninguna <strong>cruza</strong>. Ese cruce automático entre perdidos y encontrados es el corazón de la propuesta.</p>
+    <div style="overflow-x:auto">
+      <table class="cmp">
+        <thead><tr><th></th><th>Carteles</th><th>Grupos FB/WhatsApp</th><th>Vuelve a Casa</th></tr></thead>
+        <tbody>
+          <tr><td>Alcance</td><td class="no">Una cuadra</td><td class="mid">Miembros del grupo</td><td class="yes">Toda la comuna y alrededores</td></tr>
+          <tr><td>Vigencia del aviso</td><td class="mid">Días (clima)</td><td class="no">Horas (algoritmo)</td><td class="yes">Activo hasta el reencuentro</td></tr>
+          <tr><td>Cruce perdido ↔ encontrado</td><td class="no">No existe</td><td class="no">Manual y azaroso</td><td class="yes">Automático e inmediato</td></tr>
+          <tr><td>Esfuerzo de reportar</td><td class="no">Imprimir y pegar</td><td class="mid">Buscar grupos, pedir acceso</td><td class="yes">2 minutos, sin cuenta</td></tr>
+          <tr><td>Búsqueda y filtros</td><td class="no">No</td><td class="no">Scroll infinito</td><td class="yes">Por comuna, especie y características</td></tr>
+          <tr><td>Recompensa</td><td class="mid">Escrita a mano</td><td class="mid">Informal</td><td class="yes">Opcional, con monto reservado y pautas de seguridad</td></tr>
+          <tr><td>Cierre del caso</td><td class="no">El cartel queda pegado</td><td class="no">Posts "zombis" siguen circulando</td><td class="yes">Estados visibles y cierre de reencuentro</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid g3" style="margin-top:26px">
+      <div class="card"><h3>🎯 Foco deliberado</h3><p>Solo búsqueda y reencuentro. Evaluamos incluir adopción y hospedaje temporal, y los descartamos por ahora: diluyen el foco donde el tiempo es crítico.</p></div>
+      <div class="card"><h3>🤝 Complementa, no reemplaza</h3><p>La estrategia inicial es convivir con los grupos vecinales existentes: el reporte genera un resumen listo para compartir en ellos, y esos mismos grupos traen usuarios a la plataforma.</p></div>
+      <div class="card"><h3>🛡️ Confianza por diseño</h3><p>Sin pagos dentro de la plataforma, contacto protegido y datos mínimos. La recompensa es opcional, con monto reservado si se prefiere y una pauta clara: pago solo contra entrega. El dinero nunca pasa por nosotros.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ IMPACTO ============ -->
+<section id="impacto" class="alt impact">
+  <div class="wrap">
+    <span class="kicker">5 · El impacto</span>
+    <h2>Menos tiempo perdidos, menos animales abandonados</h2>
+    <div class="grid g3" style="margin-top:26px">
+      <div class="card"><div class="big">⏱️</div><h3>Reencuentros más rápidos</h3><p>Reducir el tiempo entre pérdida y reencuentro concentrando la información donde ambos lados la buscan.</p></div>
+      <div class="card"><div class="big">🏠</div><h3>Menos abandono efectivo</h3><p>Cada mascota que vuelve a casa es una menos en la calle, en refugios saturados o en riesgo sanitario.</p></div>
+      <div class="card"><div class="big">🌍</div><h3>Comunidad que escala</h3><p>Modelo replicable comuna a comuna. A futuro: alianzas con municipios, veterinarias y organizaciones de rescate, y módulos de adopción y hospedaje temporal.</p></div>
+    </div>
+    <div class="card" style="margin-top:26px">
+      <h3>Próximos pasos del proyecto</h3>
+      <p>Este es un prototipo en evolución dentro del Taller de Innovación y Emprendimiento (USS). Las siguientes iteraciones incorporarán los resultados de las validaciones con usuarios reales, notificaciones de coincidencia y un piloto territorial en una comuna para probar el supuesto crítico del proyecto: alcanzar la masa de reportes que hace que el cruce funcione.</p>
+    </div>
+    <div style="text-align:center; margin-top:34px">
+      <a class="btn btn-a" href="#demo">Probar la demo otra vez</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div><strong style="color:#fff">🐾 Vuelve a Casa</strong> — prototipo académico (Solemne 1).</div>
+    <div>Taller de Innovación y Emprendimiento · Universidad San Sebastián · Cristian Schmelzer · 2026.</div>
+    <div>Prototipo funcional con fines de validación: los reportes se almacenan localmente en el navegador y las funciones de contacto son simuladas.</div>
+  </div>
+</footer>
+
+<!-- MODAL COINCIDENCIA -->
+<dialog id="dlg-match">
+  <div class="mhead match"><h3 id="match-title">🎉 ¡Posible coincidencia encontrada!</h3><button class="mclose" onclick="closeDlg('dlg-match')" aria-label="Cerrar">✕</button></div>
+  <div class="mbody">
+    <p id="match-sub" style="font-size:.95rem; color:var(--ink-soft)"></p>
+    <div id="match-list"></div>
+    <div class="simnote">ℹ️ En la versión real, aquí se abriría un <strong>chat seguro</strong> entre ambas partes (sin exponer teléfonos) y se enviaría una notificación. En este prototipo, el contacto es simulado.</div>
+    <div style="margin-top:16px; text-align:right"><button class="btn btn-p btn-sm" onclick="closeDlg('dlg-match')">Entendido</button></div>
+  </div>
+</dialog>
+
+<!-- MODAL CONTACTO SIMULADO -->
+<dialog id="dlg-contact">
+  <div class="mhead"><h3>Contacto seguro (simulado)</h3><button class="mclose" onclick="closeDlg('dlg-contact')" aria-label="Cerrar">✕</button></div>
+  <div class="mbody">
+    <p style="font-size:.95rem">Has solicitado contactar a la persona de este reporte.</p>
+    <div class="simnote">ℹ️ <strong>Elemento simulado del prototipo:</strong> en la versión real se abriría un chat interno y la otra persona recibiría una notificación. Ninguna de las dos partes ve el teléfono o correo de la otra hasta que ambas lo acepten.</div>
+    <div style="margin-top:16px; text-align:right"><button class="btn btn-p btn-sm" onclick="closeDlg('dlg-contact')">Entendido</button></div>
+  </div>
+</dialog>
+
+<!-- MODAL GUÍA PRIMERAS HORAS -->
+<dialog id="dlg-guide">
+  <div class="mhead"><h3>📖 Guía de primeras horas</h3><button class="mclose" onclick="closeDlg('dlg-guide')" aria-label="Cerrar">✕</button></div>
+  <div class="mbody" id="guide-body"></div>
+</dialog>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+"use strict";
+/* ================== Datos y utilidades ================== */
+var COMUNAS = ["Providencia","Ñuñoa","Santiago Centro","Las Condes","La Reina","Macul","San Miguel","La Florida","Maipú","Peñalolén","Recoleta","Independencia","Estación Central","Puente Alto","Vitacura","Otra"];
+var STORE_KEY = "vac_reports_v1";
+var memoryStore = null;
+var matchesCount = 0;
+
+function seedData(){
+  var hoy = new Date();
+  function d(n){ var x=new Date(hoy); x.setDate(x.getDate()-n); return x.toISOString().slice(0,10); }
+  return [
+    {id:1, tipo:"perdida", nombre:"Rocky", especie:"Perro", raza:"golden retriever", tamano:"Grande", colores:"dorado", comuna:"Providencia", fecha:d(2), senas:"Collar rojo con placa. Se perdió cerca del Parque Inés de Suárez.", recompensa:50000, mostrarMonto:true, urgencia:false, cerrado:false, foto:null, seed:true},
+    {id:2, tipo:"perdida", nombre:"Misha", especie:"Gato", raza:"siamés", tamano:"Pequeño", colores:"crema, café", comuna:"Ñuñoa", fecha:d(4), senas:"Muy tímida, tiene chip. Toma un medicamento diario: cada hora cuenta.", recompensa:null, urgencia:true, cerrado:false, foto:null, seed:true},
+    {id:3, tipo:"perdida", nombre:"Toby", especie:"Perro", raza:"poodle", tamano:"Pequeño", colores:"blanco", comuna:"Maipú", fecha:d(1), senas:"Recién cortado de pelo, sin collar.", recompensa:20000, mostrarMonto:false, urgencia:false, cerrado:false, foto:null, seed:true},
+    {id:4, tipo:"hallazgo", nombre:null, especie:"Gato", raza:"", tamano:"Mediano", colores:"negro", comuna:"Santiago Centro", fecha:d(1), senas:"Sin collar, muy amistoso.", estado:"Lo tengo conmigo temporalmente", recompensa:null, urgencia:false, cerrado:false, foto:null, seed:true},
+    {id:5, tipo:"hallazgo", nombre:null, especie:"Perro", raza:"mestizo", tamano:"Mediano", colores:"café", comuna:"La Florida", fecha:d(3), senas:"Estaba en la plaza, asustado.", estado:"Lo llevé a una veterinaria/refugio", recompensa:null, urgencia:false, cerrado:false, foto:null, seed:true},
+    {id:6, tipo:"hallazgo", nombre:null, especie:"Perro", raza:"", tamano:"Pequeño", colores:"blanco", comuna:"Maipú", fecha:d(0), senas:"Lo vi en la plaza, iba hacia el paradero. No pude quedarme.", estado:"Solo lo vi, no pude quedarme (avistamiento)", recompensa:null, urgencia:false, cerrado:false, foto:null, seed:true},
+    {id:7, tipo:"perdida", nombre:"Luna", especie:"Gato", raza:"", tamano:"Pequeño", colores:"gris", comuna:"Recoleta", fecha:d(6), senas:"Apareció gracias a un reporte de hallazgo de una vecina. ¡Gracias!", recompensa:null, urgencia:false, cerrado:true, foto:null, seed:true}
+  ];
+}
+function loadStore(){
+  if(memoryStore) return memoryStore;
+  try{
+    var raw = localStorage.getItem(STORE_KEY);
+    memoryStore = raw ? JSON.parse(raw) : seedData();
+  }catch(e){ memoryStore = seedData(); }
+  return memoryStore;
+}
+function saveStore(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(memoryStore)); }catch(e){ /* modo memoria */ }
+}
+function resetDemo(){
+  memoryStore = seedData(); saveStore(); matchesCount = 0; renderMuro(); updateStats();
+  toast("Demo restablecida con los datos de ejemplo.");
+}
+function norm(s){ return (s||"").toString().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,""); }
+function tokens(s){ return norm(s).split(/[\s,;\/]+/).filter(function(t){return t.length>2;}); }
+function esc(s){ return (s||"").toString().replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+function clp(n){ return "$" + Number(n).toLocaleString("es-CL"); }
+function toast(msg){
+  var t = document.getElementById("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(t._h); t._h = setTimeout(function(){ t.classList.remove("show"); }, 3600);
+}
+
+/* ================== Matching (implementado) ================== */
+function scoreMatch(a, b){
+  if(a.especie !== b.especie) return 0;
+  var s = 0;
+  if(a.comuna && a.comuna === b.comuna) s += 3;
+  var ca = tokens(a.colores), cb = tokens(b.colores);
+  if(ca.some(function(t){ return cb.indexOf(t) >= 0; })) s += 2;
+  if(a.tamano && a.tamano === b.tamano) s += 1;
+  var ra = tokens(a.raza), rb = tokens(b.raza);
+  if(ra.length && ra.some(function(t){ return rb.indexOf(t) >= 0; })) s += 2;
+  return s;
+}
+function findMatches(rep){
+  var list = loadStore().filter(function(r){ return r.tipo !== rep.tipo && !r.cerrado; });
+  return list.map(function(r){ return {rep:r, score:scoreMatch(rep,r)}; })
+             .filter(function(m){ return m.score >= 3; })
+             .sort(function(x,y){ return y.score - x.score; })
+             .slice(0,3);
+}
+
+/* ================== UI: tabs ================== */
+function openTab(name){
+  ["perdida","hallazgo","muro"].forEach(function(t){
+    var sel = (t === name);
+    var tab = document.getElementById("tab-"+t), panel = document.getElementById("panel-"+t);
+    if(tab) tab.setAttribute("aria-selected", sel ? "true" : "false");
+    if(panel) panel.hidden = !sel;
+  });
+  if(name === "muro") renderMuro();
+}
+
+/* ================== UI: fotos ================== */
+var fotoTemp = {};
+function previewFoto(input, targetId){
+  var file = input.files && input.files[0];
+  var box = document.getElementById(targetId);
+  if(!file){ box.innerHTML = "🐾"; fotoTemp[targetId] = null; return; }
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var img = new Image();
+    img.onload = function(){
+      var c = document.createElement("canvas");
+      var max = 240, ratio = Math.min(max/img.width, max/img.height, 1);
+      c.width = Math.round(img.width*ratio); c.height = Math.round(img.height*ratio);
+      c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+      var url = c.toDataURL("image/jpeg",0.72);
+      fotoTemp[targetId] = url;
+      box.innerHTML = '<img alt="Foto de la mascota" src="'+url+'">';
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ================== UI: formularios ================== */
+function handleSubmit(tipo, form, prevId){
+  var fd = new FormData(form);
+  var rep = {
+    id: Date.now(), tipo: tipo,
+    nombre: fd.get("nombre") || null,
+    especie: fd.get("especie"), raza: fd.get("raza") || "",
+    tamano: fd.get("tamano") || "", colores: fd.get("colores") || "",
+    comuna: fd.get("comuna"), fecha: fd.get("fecha"),
+    senas: fd.get("senas") || "",
+    recompensa: fd.get("ofreceRecompensa") ? Number(fd.get("recompensa") || 0) : null,
+    mostrarMonto: !!fd.get("mostrarMonto"),
+    urgencia: !!fd.get("urgencia"),
+    estado: fd.get("estado") || null,
+    cerrado: false,
+    foto: fotoTemp[prevId] || null, seed:false
+  };
+  loadStore().unshift(rep); saveStore();
+  form.reset(); prefillDates();
+  document.getElementById(prevId).innerHTML = "🐾"; fotoTemp[prevId] = null;
+  var recBox = document.getElementById("box-rec"); if(recBox) recBox.style.display = "none";
+  updateStats();
+
+  var matches = findMatches(rep);
+  if(matches.length){
+    matchesCount += matches.length; updateStats();
+    showMatches(rep, matches);
+  }else{
+    toast(tipo === "perdida"
+      ? "Reporte publicado ✓ — aún sin coincidencias. Te avisaríamos ante un hallazgo similar (simulado)."
+      : "Reporte publicado ✓ — aún sin coincidencias. Te avisaríamos si alguien busca a este animal (simulado).");
+    openTab("muro");
+    if(tipo === "perdida") openGuideFor(rep.especie);
+  }
+}
+function showMatches(rep, matches){
+  var sub = document.getElementById("match-sub");
+  sub.textContent = rep.tipo === "perdida"
+    ? "Tu reporte de pérdida coincide con " + matches.length + " hallazgo(s) ya publicados:"
+    : "El animal que encontraste coincide con " + matches.length + " búsqueda(s) activa(s):";
+  var list = document.getElementById("match-list");
+  list.innerHTML = matches.map(function(m){
+    var r = m.rep;
+    var badge = m.score >= 5 ? '<span class="scorepill s-hi">Coincidencia alta</span>' : '<span class="scorepill s-md">Coincidencia media</span>';
+    var icon = r.foto ? '<img src="'+r.foto+'" alt="">' : (r.especie === "Gato" ? "🐈" : (r.especie === "Perro" ? "🐕" : "🐾"));
+    var title = r.tipo === "perdida" ? ("Perdido: " + esc(r.nombre || "sin nombre")) : "Encontrado (sin identificar)";
+    return '<div class="matchcard"><div class="ph">'+icon+'</div><div>'
+      + '<strong>'+title+'</strong><br><span style="font-size:.85rem;color:var(--ink-soft)">'
+      + esc(r.especie) + (r.raza ? " · "+esc(r.raza) : "") + (r.colores ? " · "+esc(r.colores) : "") + " · " + esc(r.comuna)
+      + '</span><br><button class="btn btn-a btn-sm" style="margin-top:6px" onclick="openContact()">Contactar</button></div>'
+      + badge + '</div>';
+  }).join("");
+  document.getElementById("dlg-match").showModal();
+}
+function openContact(){ closeDlg("dlg-match"); document.getElementById("dlg-contact").showModal(); }
+function closeDlg(id){ document.getElementById(id).close(); }
+
+/* ================== UI: muro ================== */
+function renderMuro(){
+  var store = loadStore();
+  var q = norm(document.getElementById("f-texto").value);
+  var ft = document.getElementById("f-tipo").value;
+  var fe = document.getElementById("f-especie").value;
+  var fc = document.getElementById("f-comuna").value;
+  var list = store.filter(function(r){
+    if(ft === "cerrado"){ if(!r.cerrado) return false; }
+    else if(ft && r.tipo !== ft) return false;
+    if(fe && r.especie !== fe) return false;
+    if(fc && r.comuna !== fc) return false;
+    if(q){
+      var blob = norm([r.nombre,r.raza,r.colores,r.comuna,r.senas].join(" "));
+      if(blob.indexOf(q) < 0) return false;
+    }
+    return true;
+  });
+  function rank(r){ return r.cerrado ? 2 : (r.urgencia ? 0 : 1); }
+  list = list.slice().sort(function(a,b){ return rank(a) - rank(b); });
+  var muro = document.getElementById("muro");
+  if(!list.length){ muro.innerHTML = '<div class="empty">No hay reportes con esos filtros. Publica uno desde las pestañas de arriba.</div>'; }
+  else{
+    muro.innerHTML = list.map(function(r){
+      var icon = r.foto ? '<img src="'+r.foto+'" alt="Foto de la mascota">' : (r.especie === "Gato" ? "🐈" : (r.especie === "Perro" ? "🐕" : "🐾"));
+      var esAvist = r.tipo === "hallazgo" && r.estado && r.estado.indexOf("avistamiento") >= 0;
+      var badge = r.cerrado ? '<span class="badge b-done">REENCONTRADO 🎉</span>'
+                : r.tipo === "perdida" ? '<span class="badge b-lost">PERDIDO</span>'
+                : esAvist ? '<span class="badge b-see">AVISTAMIENTO</span>'
+                : '<span class="badge b-found">ENCONTRADO</span>';
+      var urg = (!r.cerrado && r.urgencia) ? ' <span class="badge b-urg">⚕️ URGENCIA MÉDICA</span>' : "";
+      var rew = (!r.cerrado && r.recompensa != null) ? ' <span class="badge b-rew">'+((r.mostrarMonto && r.recompensa > 0) ? "Recompensa "+clp(r.recompensa) : "Recompensa ofrecida")+'</span>' : "";
+      var name = r.tipo === "perdida" ? esc(r.nombre || "Sin nombre") : "Sin identificar";
+      var meta = [r.especie, r.raza, r.tamano, r.colores].filter(Boolean).map(esc).join(" · ");
+      var estadoLine = (r.tipo === "hallazgo" && r.estado) ? '<p>📌 '+esc(r.estado)+'</p>' : "";
+      var accion = r.tipo === "perdida" ? "💚 Lo encontré / lo vi" : "🔍 ¡Es mi mascota!";
+      var botones = r.cerrado ? "" :
+          '<div class="actions"><button class="btn btn-o btn-sm" onclick="document.getElementById(\'dlg-contact\').showModal()">'+accion+'</button>'
+        + '<button class="btn btn-o btn-sm" onclick="copiarAviso('+r.id+')">📋 Copiar aviso</button>'
+        + '<button class="btn btn-o btn-sm" onclick="marcarReencuentro('+r.id+')">✔ Se reencontró</button></div>';
+      return '<article class="rep'+(r.cerrado ? ' done' : '')+((!r.cerrado && r.urgencia) ? ' urg' : '')+'"><div class="ph">'+icon+'</div><div style="flex:1">'
+        + '<h4>'+badge+urg+' '+name+rew+'</h4>'
+        + '<p>'+meta+'</p>'
+        + '<p>📍 '+esc(r.comuna)+' · '+esc(r.fecha||"")+'</p>'
+        + estadoLine
+        + (r.senas ? '<p>'+esc(r.senas)+'</p>' : "")
+        + botones
+        + '</div></article>';
+    }).join("");
+  }
+  document.getElementById("muro-count").textContent = "("+store.length+")";
+}
+
+/* ================== Acciones sobre reportes (v1.1, derivadas de empatía) ================== */
+function findRep(id){ return loadStore().filter(function(r){ return r.id === id; })[0]; }
+function marcarReencuentro(id){
+  var r = findRep(id); if(!r) return;
+  r.cerrado = true; saveStore(); renderMuro(); updateStats();
+  toast("🎉 Caso marcado como reencontrado. ¡La mejor noticia posible!");
+}
+function buildAviso(r){
+  var t = r.tipo === "perdida"
+    ? "🔴 SE BUSCA: " + (r.nombre || "mascota") + " — " + [r.especie, r.raza, r.tamano, r.colores].filter(Boolean).join(", ")
+    : ((r.estado && r.estado.indexOf("avistamiento") >= 0) ? "👀 AVISTAMIENTO: " : "🟢 ENCONTRADO: ") + [r.especie, r.raza, r.tamano, r.colores].filter(Boolean).join(", ");
+  t += "\n📍 " + r.comuna + " · " + (r.fecha || "");
+  if(r.senas) t += "\n📝 " + r.senas;
+  if(r.tipo === "perdida" && r.recompensa != null) t += "\n💰 " + ((r.mostrarMonto && r.recompensa > 0) ? "Recompensa: " + clp(r.recompensa) : "Recompensa ofrecida") + " (pago solo contra entrega)";
+  t += "\n🔗 Reporte completo y contacto: " + location.href.split("#")[0];
+  return t;
+}
+function copiarAviso(id){
+  var r = findRep(id); if(!r) return;
+  var txt = buildAviso(r);
+  function ok(){ toast("📋 Aviso copiado: pégalo en tus grupos de WhatsApp o Facebook."); }
+  function fallback(){
+    try{
+      var ta = document.createElement("textarea"); ta.value = txt; document.body.appendChild(ta); ta.select();
+      document.execCommand("copy"); document.body.removeChild(ta); ok();
+    }catch(e){ toast("No se pudo copiar automáticamente."); }
+  }
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(ok, fallback); }
+    else fallback();
+  }catch(e){ fallback(); }
+}
+
+/* ================== Guía de primeras horas ================== */
+var GUIAS = {
+  "Gato": "<p><strong>Los gatos asustados no corren: se esconden.</strong> Busca en un radio de ~50 metros: bajo autos, bodegas, quinchos, entretechos.</p><p style='margin-top:8px'>Busca <strong>de noche y en silencio</strong>, con linterna; deja su arena y su comida en la puerta.</p><p style='margin-top:8px'>Pide a conserjes y vecinos inmediatos revisar patios, bodegas y estacionamientos.</p>",
+  "Perro": "<p><strong>Actúa en las primeras horas.</strong> Recorre de inmediato sus rutas habituales y avisa a quienes pasan el día en la calle: almacén, feria, conserjes, cuidadores.</p><p style='margin-top:8px'>Publica con una <strong>foto nítida de frente</strong>: es lo que hace posible el reconocimiento.</p><p style='margin-top:8px'>Ante avistamientos, pide foto y ubicación exacta antes de cruzar la ciudad.</p>",
+  "Otra": "<p><strong>Actúa rápido:</strong> las especies pequeñas son especialmente frágiles fuera de casa.</p><p style='margin-top:8px'>Revisa escondites en un radio corto y avisa de inmediato a los vecinos del sector.</p>"
+};
+function openGuideFor(especie){
+  var contenido = GUIAS[especie] || GUIAS["Otra"];
+  document.getElementById("guide-body").innerHTML = contenido
+    + '<div class="simnote" style="margin-top:14px">🛡️ Nunca pagues recompensas por adelantado. Ante llamadas que exigen depósitos para "traslados", corta: es una estafa conocida.</div>'
+    + '<div style="margin-top:14px; text-align:right"><button class="btn btn-p btn-sm" onclick="closeDlg(\'dlg-guide\')">Entendido</button></div>';
+  document.getElementById("dlg-guide").showModal();
+}
+function openGuide(ev){
+  if(ev) ev.preventDefault();
+  var sel = document.querySelector('#form-perdida [name=especie]');
+  openGuideFor((sel && sel.value) || "Perro");
+}
+function prefillDates(){
+  var hoy = new Date().toISOString().slice(0,10);
+  document.querySelectorAll('input[type=date]').forEach(function(i){ if(!i.value) i.value = hoy; });
+}
+
+/* ================== Stats ================== */
+function updateStats(){
+  var store = loadStore();
+  document.getElementById("stat-reportes").textContent = store.filter(function(r){ return !r.cerrado; }).length;
+  document.getElementById("stat-matches").textContent = matchesCount;
+  var comunas = {}; store.forEach(function(r){ comunas[r.comuna] = 1; });
+  document.getElementById("stat-comunas").textContent = Object.keys(comunas).length;
+  document.getElementById("muro-count").textContent = "("+store.length+")";
+}
+
+/* ================== Init ================== */
+document.addEventListener("DOMContentLoaded", function(){
+  document.querySelectorAll(".sel-comuna").forEach(function(sel){
+    sel.innerHTML = '<option value="">Selecciona…</option>' + COMUNAS.map(function(c){ return "<option>"+c+"</option>"; }).join("");
+  });
+  var fsel = document.querySelector(".sel-comuna-f");
+  fsel.innerHTML = '<option value="">Toda comuna</option>' + COMUNAS.map(function(c){ return "<option>"+c+"</option>"; }).join("");
+  document.getElementById("form-perdida").addEventListener("submit", function(e){ e.preventDefault(); handleSubmit("perdida", this, "prev-perdida"); });
+  document.getElementById("form-hallazgo").addEventListener("submit", function(e){ e.preventDefault(); handleSubmit("hallazgo", this, "prev-hallazgo"); });
+  prefillDates(); loadStore(); updateStats(); renderMuro();
+});
+</script>
+</body>
+</html>
