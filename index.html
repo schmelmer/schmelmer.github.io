@@ -306,7 +306,7 @@
       <div style="background:#ffffff;padding:24px">
         <span style="font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.1em;color:#c9820a">FASE 05</span>
         <h3 style="font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:19px;margin:8px 0 6px">Validar</h3>
-        <p style="font-size:13.5px;color:#54646f">Próximo paso: piloto en una comuna para probar el supuesto crítico —alcanzar la masa de reportes que hace útil el cruce.</p>
+        <p style="font-size:13.5px;color:#54646f">Próximo paso: piloto en Huechuraba —donde vive parte de los entrevistados— para probar el supuesto crítico: alcanzar la masa de reportes que hace útil el cruce.</p>
       </div>
     </div>
 
@@ -347,7 +347,7 @@
           <div role="img" aria-label="Camila, dueña entrevistada" style="flex:0 0 56px;height:56px;border-radius:50%;background:center/cover no-repeat url(imagenes-vuelve-a-casa/persona-camila.jpg)"></div>
           <div>
             <h3 style="font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:22px">La familia que busca</h3>
-            <p style="font-size:12.5px;color:#54646f;letter-spacing:.03em">Camila, 34 · Ñuñoa · dueña de Misha</p>
+            <p style="font-size:12.5px;color:#54646f;letter-spacing:.03em">Camila, 27 · Ñuñoa · dueña entrevistada</p>
           </div>
         </div>
         <p style="color:#54646f;font-size:14.5px;margin-top:18px">Para ellos la mascota es un miembro de la familia. Están en crisis: angustia, urgencia y disposición a hacer lo que sea —publicar en todos lados, empapelar el barrio, ofrecer recompensa.</p>
@@ -359,7 +359,7 @@
           <div role="img" aria-label="Bárbara, testigo entrevistada" style="flex:0 0 56px;height:56px;border-radius:50%;background:center/cover no-repeat url(imagenes-vuelve-a-casa/persona-barbara.jpg)"></div>
           <div>
             <h3 style="font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:22px">La persona que encuentra</h3>
-            <p style="font-size:12.5px;color:#54646f;letter-spacing:.03em">Bárbara, 27 · Santiago Centro · testigo</p>
+            <p style="font-size:12.5px;color:#54646f;letter-spacing:.03em">Bárbara, 37 · Huechuraba · testigo entrevistada</p>
           </div>
         </div>
         <p style="color:#54646f;font-size:14.5px;margin-top:18px">Un vecino que ve un animal perdido camino al trabajo. Quiere ayudar, pero no sabe dónde reportar, no puede quedarse con el animal y no pertenece a los grupos del barrio del dueño.</p>
@@ -415,7 +415,7 @@
     <div style="background:#0e7c7b;color:#ffffff;border-radius:16px;padding:36px;margin-top:32px;display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));align-items:center">
       <div>
         <h3 style="font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:25px;margin-bottom:10px">Próximos pasos del proyecto</h3>
-        <p style="color:#d7ecec;font-size:14.5px;max-width:60ch">Las siguientes iteraciones incorporarán las validaciones con usuarios reales, notificaciones de coincidencia y un piloto territorial en una comuna para probar el supuesto crítico: alcanzar la masa de reportes que hace que el cruce funcione.</p>
+        <p style="color:#d7ecec;font-size:14.5px;max-width:60ch">Las siguientes iteraciones incorporarán las validaciones con usuarios reales, notificaciones de coincidencia y un piloto territorial en Huechuraba para probar el supuesto crítico: alcanzar la masa de reportes que hace que el cruce funcione.</p>
       </div>
       <div style="text-align:right">
         <a href="#demo" style="background:#f4a825;color:#3c2c05;text-decoration:none;font-weight:700;font-size:15px;padding:14px 22px;border-radius:10px;display:inline-block">Probar la demo otra vez</a>
@@ -439,7 +439,7 @@
 
 <script>
 (function(){
-  const COMUNAS = ["Providencia","Ñuñoa","Santiago Centro","Las Condes","La Reina","Macul","San Miguel","La Florida","Maipú","Peñalolén","Recoleta","Independencia","Estación Central","Puente Alto","Vitacura","Otra"];
+  const COMUNAS = ["Huechuraba","Providencia","Ñuñoa","Santiago Centro","Las Condes","La Reina","Macul","San Miguel","La Florida","Maipú","Peñalolén","Recoleta","Independencia","Estación Central","Puente Alto","Vitacura","Otra"];
   const STORE_KEY = "vac_reports_v3";
   const IMG = "imagenes-vuelve-a-casa/";
   const GUIAS = {
@@ -451,10 +451,10 @@
   const seedData = () => [
     {id:1,tipo:"perdida",nombre:"Rocky",especie:"Perro",raza:"golden retriever",tamano:"Grande",colores:"dorado",comuna:"Providencia",fecha:d(2),senas:"Collar rojo con placa. Se perdió cerca del Parque Inés de Suárez.",recompensa:50000,mostrarMonto:true,urgencia:false,cerrado:false,foto:IMG+"rocky.jpg"},
     {id:2,tipo:"perdida",nombre:"Misha",especie:"Gato",raza:"siamés",tamano:"Pequeño",colores:"crema, café",comuna:"Ñuñoa",fecha:d(4),senas:"Muy tímida, tiene chip. Toma un medicamento diario: cada hora cuenta.",recompensa:null,urgencia:true,cerrado:false,foto:IMG+"misha.jpg"},
-    {id:3,tipo:"perdida",nombre:"Toby",especie:"Perro",raza:"poodle",tamano:"Pequeño",colores:"blanco",comuna:"Maipú",fecha:d(1),senas:"Recién cortado de pelo, sin collar.",recompensa:20000,mostrarMonto:false,urgencia:false,cerrado:false,foto:IMG+"toby.jpg"},
+    {id:3,tipo:"perdida",nombre:"Toby",especie:"Perro",raza:"poodle",tamano:"Pequeño",colores:"blanco",comuna:"Huechuraba",fecha:d(1),senas:"Recién cortado de pelo, sin collar.",recompensa:20000,mostrarMonto:false,urgencia:false,cerrado:false,foto:IMG+"toby.jpg"},
     {id:4,tipo:"hallazgo",nombre:null,especie:"Gato",raza:"",tamano:"Mediano",colores:"negro",comuna:"Santiago Centro",fecha:d(1),senas:"Sin collar, muy amistoso.",estado:"Lo tengo conmigo temporalmente",recompensa:null,urgencia:false,cerrado:false,foto:IMG+"hallazgo-gato-negro.jpg"},
     {id:5,tipo:"hallazgo",nombre:null,especie:"Perro",raza:"mestizo",tamano:"Mediano",colores:"café",comuna:"La Florida",fecha:d(3),senas:"Estaba en la plaza, asustado.",estado:"Lo llevé a una veterinaria/refugio",recompensa:null,urgencia:false,cerrado:false,foto:IMG+"hallazgo-mestizo.jpg"},
-    {id:6,tipo:"hallazgo",nombre:null,especie:"Perro",raza:"",tamano:"Pequeño",colores:"blanco",comuna:"Maipú",fecha:d(0),senas:"Lo vi en la plaza, iba hacia el paradero. No pude quedarme.",estado:"Solo lo vi, no pude quedarme (avistamiento)",recompensa:null,urgencia:false,cerrado:false,foto:IMG+"avistamiento.jpg"},
+    {id:6,tipo:"hallazgo",nombre:null,especie:"Perro",raza:"",tamano:"Pequeño",colores:"blanco",comuna:"Huechuraba",fecha:d(0),senas:"Lo vi en la plaza, iba hacia el paradero. No pude quedarme.",estado:"Solo lo vi, no pude quedarme (avistamiento)",recompensa:null,urgencia:false,cerrado:false,foto:IMG+"avistamiento.jpg"},
     {id:7,tipo:"perdida",nombre:"Luna",especie:"Gato",raza:"",tamano:"Pequeño",colores:"gris",comuna:"Recoleta",fecha:d(6),senas:"Apareció gracias a un reporte de hallazgo de una vecina. ¡Gracias!",recompensa:null,urgencia:false,cerrado:true,foto:null}
   ];
   const norm = s => (s||"").toString().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
