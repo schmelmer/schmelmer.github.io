@@ -715,9 +715,15 @@
     );
   }
 
-  function openGuideModal(especie){
+  function openGuideModal(especie, repId){
     const paras = GUIAS[especie] || GUIAS.Otra;
     const parasHTML = paras.map(p => '<p style="font-size:14.5px;color:#20303c">'+escapeHtml(p)+'</p>').join("");
+    const estadoHTML = repId
+      ? '<div style="background:#e6f6ee;border:1px solid #bfe3cf;color:#1e6e48;padding:12px 16px;border-radius:10px;font-size:13px">✅ <strong>Tu reporte quedó activo en el muro</strong> y se cruzará automáticamente con cada nuevo hallazgo. Difúndelo también en tus grupos con el botón de abajo.</div>'
+      : "";
+    const botonesHTML = '<div style="text-align:right">'
+      + (repId ? '<button data-modal-action="copy-new" data-id="'+repId+'" style="background:#f4a825;color:#3c2c05;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;margin-right:8px">📋 Copiar aviso para compartir</button>' : "")
+      + '<button data-modal-close style="background:#0e7c7b;color:#fbfcfd;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer">Entendido</button></div>';
     openModal(
       '<div style="background:#0e7c7b;color:#fff;padding:18px 24px;display:flex;justify-content:space-between;align-items:center">'
       + '<h3 style="font-family:\'IBM Plex Sans\',sans-serif;font-weight:600;font-size:20px">📖 Guía de primeras horas · '+escapeHtml(especie)+'</h3>'
@@ -725,8 +731,9 @@
       + '</div>'
       + '<div style="padding:24px;display:grid;gap:12px">'
       + parasHTML
+      + estadoHTML
       + '<div style="background:#fdf3dd;border:1px solid #f0dcae;color:#6b5313;padding:12px 16px;border-radius:10px;font-size:13px">Nunca pagues recompensas por adelantado. Ante llamadas que exigen depósitos para «traslados», corta: es una estafa conocida.</div>'
-      + '<div style="text-align:right"><button data-modal-close style="background:#0e7c7b;color:#fbfcfd;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer">Entendido</button></div>'
+      + botonesHTML
       + '</div>',
       580
     );
@@ -806,8 +813,8 @@
     } else {
       toast(tipo === "perdida"
         ? "Reporte publicado ✓ — aún sin coincidencias. Te avisaríamos ante un hallazgo similar (simulado)."
-        : "Reporte publicado ✓ — aún sin coincidencias. Te avisaríamos si alguien busca a este animal (simulado).");
-      if (tipo === "perdida") openGuideModal(rep.especie || "Otra");
+        : "Reporte publicado ✓ — aún sin coincidencias. Te avisaríamos si alguien busca a este animal (simulado). Usa «Copiar aviso» en tu reporte del muro para difundirlo.");
+      if (tipo === "perdida") openGuideModal(rep.especie || "Otra", rep.id);
       else setTab("muro");
     }
   }
@@ -834,6 +841,7 @@
   });
 
   $("#resetBtn").addEventListener("click", () => {
+    if (!window.confirm("¿Restablecer la demo? Se borrarán los reportes que hayas creado y volverán los datos de ejemplo.")) return;
     state.reports = seedData();
     state.matchesCount = 0;
     persist();
@@ -844,6 +852,12 @@
   document.addEventListener("click", e => {
     if (e.target.closest("[data-modal-close]")) { closeModal(); return; }
     if (e.target.hasAttribute && e.target.hasAttribute("data-modal-overlay")) { closeModal(); return; }
+    const copyNewBtn = e.target.closest("[data-modal-action='copy-new']");
+    if (copyNewBtn) {
+      const rep = state.reports.find(r => r.id === Number(copyNewBtn.dataset.id));
+      if (rep) copiar(rep);
+      return;
+    }
     const contactBtn = e.target.closest("[data-modal-action='contact']");
     if (contactBtn) { closeModal(); setTimeout(openContactModal, 60); }
   });
